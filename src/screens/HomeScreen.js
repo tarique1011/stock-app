@@ -11,15 +11,21 @@ class HomeScreen extends Component {
 		};
 	}
 
+	renderStockPrice(item) {
+		if (item.stock_price) {
+			return <Text style={styles.stockTextStyle}>₹{item.stock_price}</Text>;
+		}
+	}
+
 	renderItem = ({ item }) => {
-		const { id, days } = item;
+		const { id, days, stock_price } = item;
 		return (
 			<TouchableOpacity
 				style={styles.cell}
-				onPress={() => this.props.navigation.navigate('Stocks', { id, msg: 'Hi', days })}
+				onPress={() => this.props.navigation.navigate('Stocks', { id, stock_price, days })}
 			>
-				<Text>{item.days}</Text>
-				<Text>{item.stock}</Text>
+				<Text style={styles.dayTextStyle}>{item.days}</Text>
+				{this.renderStockPrice(item)}
 			</TouchableOpacity>
 		);
 	};
@@ -49,12 +55,21 @@ const styles = {
 		width: 60,
 		height: 60,
 		justifyContent: 'center',
-		alignItems: 'center',
-		borderWidth: 1,
-		margin: 1
+		alignItems: 'center'
+	},
+	dayTextStyle: {
+		fontSize: 16,
+		fontWeight: '500',
+		fontFamily: 'Roboto'
+	},
+	stockTextStyle: {
+		fontSize: 11,
+		color: 'green',
+		position: 'absolute',
+		bottom: 2
 	},
 	calendarContainer: {
-		height: 415,
+		height: 405,
 		borderRadius: 4,
 		borderWidth: 1
 	},
