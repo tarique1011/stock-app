@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
 import { View } from 'react-native';
 import AppNavigator from './AppNavigator';
+import { Provider } from 'react-redux';
+import store from './store';
 
 export default class App extends Component {
 	render() {
 		return (
-			<View style={styles.container}>
-				<AppNavigator />
-			</View>
+			<Provider store={store}>
+				<View style={styles.container}>
+					<AppNavigator />
+				</View>
+			</Provider>
 		);
 	}
 }

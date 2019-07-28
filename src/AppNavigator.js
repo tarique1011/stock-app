@@ -1,12 +1,21 @@
-import { createStackNavigator, createAppContainer } from 'react-navigation';
-import { HomeScreen, AddStockScreen } from './screens';
+import { createStackNavigator, createAppContainer, createSwitchNavigator } from 'react-navigation';
+import { HomeScreen, AddStockScreen, LoadingScreen } from './screens';
 
-const MainNavigator = createStackNavigator({
+const StackNavigator = createStackNavigator({
 	Home: {
 		screen: HomeScreen
 	},
 	Stocks: {
 		screen: AddStockScreen
+	}
+});
+
+const MainNavigator = createSwitchNavigator({
+	Loading: {
+		screen: LoadingScreen
+	},
+	HomeStack: {
+		screen: StackNavigator
 	}
 });
 
