@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, Dimensions } from 'react-native';
+import { View, Text, TextInput, Dimensions, Image } from 'react-native';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import Modal from 'react-native-modal';
 import { updateData } from '../actions';
 import { Button, Input, Card } from '../components';
-import { Colors } from '../res';
+import { Colors, Images } from '../res';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -25,7 +26,8 @@ class AddStockScreen extends Component {
 		super(props);
 		this.state = {
 			text: this.props.navigation.state.params.stock_price,
-			error: ''
+			error: '',
+			modalVisible: false
 		};
 
 		axios.defaults.headers.common['Authorization'] = `Bearer keygK8JmWLRyCOoJb`;
@@ -52,6 +54,7 @@ class AddStockScreen extends Component {
 					}
 
 					this.props.updateData(data);
+					this.setState({ modalVisible: true });
 				});
 		} else {
 			this.setState({ error: 'Please input a valid price' });
@@ -117,6 +120,24 @@ class AddStockScreen extends Component {
 		);
 	}
 
+	renderModal() {
+		return (
+			<View style={styles.modalContainerStyle}>
+				<Modal
+					isVisible={this.state.modalVisible}
+					onBackdropPress={() => {
+						this.setState({ modalVisible: false }), this.props.navigation.navigate('Home');
+					}}
+				>
+					<View style={styles.modalStyle}>
+						<Text style={styles.modalTextStyle}>Success</Text>
+						<Image source={Images.success} style={styles.modalImageStyle} />
+					</View>
+				</Modal>
+			</View>
+		);
+	}
+
 	renderMainContainer() {
 		if (this.props.navigation.state.params.stock_price) {
 			return this.renderEditStockPrice();
@@ -126,7 +147,12 @@ class AddStockScreen extends Component {
 	}
 
 	render() {
-		return <View style={styles.container}>{this.renderMainContainer()}</View>;
+		return (
+			<View style={styles.container}>
+				{this.renderMainContainer()}
+				{this.renderModal()}
+			</View>
+		);
 	}
 }
 
@@ -134,7 +160,7 @@ const styles = {
 	container: {
 		flex: 1,
 		alignItems: 'center',
-		width: SCREEN_WIDTH
+		width: '100%'
 	},
 	headerTextStyle: {
 		fontSize: 25,
@@ -152,6 +178,28 @@ const styles = {
 		color: Colors.red,
 		alignSelf: 'flex-start',
 		marginTop: 5
+	},
+	modalContainerStyle: {
+		flex: 1
+	},
+	modalStyle: {
+		backgroundColor: Colors.white,
+		height: 200,
+		width: 300,
+		alignSelf: 'center',
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	modalTextStyle: {
+		fontSize: 20,
+		fontFamily: 'Roboto',
+		fontWeight: '500',
+		marginBottom: 10
+	},
+	modalImageStyle: {
+		marginTop: 10,
+		height: 70,
+		width: 70
 	}
 };
 
