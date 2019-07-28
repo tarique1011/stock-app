@@ -1,5 +1,7 @@
 import { createStackNavigator, createAppContainer, createSwitchNavigator } from 'react-navigation';
-import { HomeScreen, AddStockScreen, LoadingScreen } from './screens';
+import HomeScreen from './screens/HomeScreen';
+import LoadingScreen from './screens/LoadingScreen';
+import { AddStockScreen } from './screens';
 
 const StackNavigator = createStackNavigator({
 	Home: {

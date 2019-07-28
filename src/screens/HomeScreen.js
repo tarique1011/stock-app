@@ -1,43 +1,14 @@
 import React, { Component } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import Airtable from 'airtable';
+import { connect } from 'react-redux';
 import { Colors } from '../res';
 
 class HomeScreen extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			data: []
+			data: this.props.stock.data
 		};
-	}
-
-	componentDidMount() {
-		const base = new Airtable({ apiKey: 'keygK8JmWLRyCOoJb' }).base('appVgOprBCsLoWLmk');
-
-		base('Table 1')
-			.select({
-				// Selecting the first 3 records in Grid view:
-				view: 'Grid view'
-			})
-			.eachPage(
-				(records, fetchNextPage) => {
-					// This function (`page`) will get called for each page of records.
-					const data = [];
-					records.forEach(record => {
-						data.push({ days: record.get('days'), id: record.getId(), stock_price: record.get('stock_price') });
-					});
-
-					this.setState({ data });
-
-					fetchNextPage();
-				},
-				err => {
-					if (err) {
-						console.error(err);
-						return;
-					}
-				}
-			);
 	}
 
 	renderItem = ({ item }) => {
@@ -48,12 +19,12 @@ class HomeScreen extends Component {
 				onPress={() => this.props.navigation.navigate('Stocks', { id, msg: 'Hi', days })}
 			>
 				<Text>{item.days}</Text>
+				<Text>{item.stock}</Text>
 			</TouchableOpacity>
 		);
 	};
 
 	render() {
-		console.log(this.state.data);
 		return (
 			<View style={{ flex: 1, alignItems: 'center', marginTop: 10 }}>
 				<View style={styles.calendarContainer}>
@@ -101,4 +72,13 @@ const styles = {
 	}
 };
 
-export { HomeScreen };
+function mapStateToProps(state) {
+	return {
+		stock: state.stock
+	};
+}
+
+export default connect(
+	mapStateToProps,
+	null
+)(HomeScreen);

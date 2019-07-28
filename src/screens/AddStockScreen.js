@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TextInput } from 'react-native';
 
 class AddStockScreen extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			text: ''
+		}
+	}
 	render() {
 		const id = this.props.navigation.state.params.id;
 		const { days } = this.props.navigation.getParam('days', 'no-days');
@@ -11,9 +17,8 @@ class AddStockScreen extends Component {
 
 		return (
 			<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-				<Text>{id}</Text>
-				<Text>{days}</Text>
-				<Text>AddStockScreen</Text>
+				<TextInput onChangeText={(text) => this.state.text} value={this.state.value} style={{ width: 60, height: 40 }} />
+				<TouchableOpacity 
 			</View>
 		);
 	}
