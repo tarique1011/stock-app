@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import Airtable from 'airtable';
 import { connect } from 'react-redux';
 import { updateData } from '../actions';
+import { Colors } from '../res';
 
 class LoadingScreen extends Component {
 	componentDidMount() {
@@ -35,12 +36,29 @@ class LoadingScreen extends Component {
 
 	render() {
 		return (
-			<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-				<Text>Loading</Text>
+			<View style={styles.container}>
+				<Text style={styles.textStyle}>Stock.in</Text>
+				<ActivityIndicator size={40} color={Colors.white} />
 			</View>
 		);
 	}
 }
+
+const styles = {
+	container: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: Colors.blue
+	},
+	textStyle: {
+		fontSize: 40,
+		color: Colors.white,
+		fontWeight: '500',
+		fontFamily: 'Roboto',
+		marginBottom: 10
+	}
+};
 
 function mapStateToProps(state) {
 	return {
