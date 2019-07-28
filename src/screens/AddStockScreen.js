@@ -24,30 +24,38 @@ class AddStockScreen extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			text: this.props.navigation.state.params.stock_price
+			text: this.props.navigation.state.params.stock_price,
+			error: ''
 		};
 
 		axios.defaults.headers.common['Authorization'] = `Bearer keygK8JmWLRyCOoJb`;
 	}
 
 	updatePrice = () => {
-		axios
-			.patch(`https://api.airtable.com/v0/appVgOprBCsLoWLmk/Table%201/${this.props.navigation.state.params.id}`, {
-				fields: {
-					stock_price: this.state.text
-				}
-			})
-			.then(res => {
-				const data = [...this.props.stock.data];
+		this.setState({ error: '' });
+		const regex = /^\d+(\.\d{1,2})?$/;
 
-				for (const item of data) {
-					if (item.id === this.props.navigation.state.params.id) {
-						item.stock_price = this.state.text;
+		if (regex.test(this.state.text)) {
+			axios
+				.patch(`https://api.airtable.com/v0/appVgOprBCsLoWLmk/Table%201/${this.props.navigation.state.params.id}`, {
+					fields: {
+						stock_price: this.state.text
 					}
-				}
+				})
+				.then(res => {
+					const data = [...this.props.stock.data];
 
-				this.props.updateData(data);
-			});
+					for (const item of data) {
+						if (item.id === this.props.navigation.state.params.id) {
+							item.stock_price = this.state.text;
+						}
+					}
+
+					this.props.updateData(data);
+				});
+		} else {
+			this.setState({ error: 'Please input a valid price' });
+		}
 	};
 
 	deletePrice = () => {
@@ -66,6 +74,7 @@ class AddStockScreen extends Component {
 					}
 				}
 
+				this.setState({ text: '' });
 				this.props.updateData(data);
 			});
 	};
@@ -73,10 +82,8 @@ class AddStockScreen extends Component {
 	renderAddStockPrice() {
 		return (
 			<View style={{ margin: 10, padding: 10, width: '90%' }}>
-				<Text style={{ fontSize: 25, fontFamily: 'Roboto', fontWeight: '500', color: Colors.black }}>
-					Enter the Stock Price
-				</Text>
-				<View style={{ flexDirection: 'row', width: '100%', marginTop: 10, justifyContent: 'space-between' }}>
+				<Text style={styles.headerTextStyle}>Enter the Stock Price</Text>
+				<View style={styles.cardStyle}>
 					<Input
 						style={{ width: '50%' }}
 						onChangeText={text => this.setState({ text })}
@@ -85,6 +92,7 @@ class AddStockScreen extends Component {
 					/>
 					<Button onPress={this.updatePrice}>Add</Button>
 				</View>
+				<Text style={styles.errorTextStyle}>{this.state.error}</Text>
 			</View>
 		);
 	}
@@ -92,19 +100,19 @@ class AddStockScreen extends Component {
 	renderEditStockPrice() {
 		return (
 			<View style={{ margin: 10, padding: 10, width: '90%' }}>
-				<Text style={{ fontSize: 25, fontFamily: 'Roboto', fontWeight: '500', color: Colors.black }}>
-					Edit the Stock Price
-				</Text>
-				<View style={{ flexDirection: 'row', width: '100%', marginTop: 10, justifyContent: 'space-between' }}>
+				<Text style={styles.headerTextStyle}>Edit the Stock Price</Text>
+				<View style={styles.cardStyle}>
 					<Input
 						style={{ width: '50%' }}
 						onChangeText={text => this.setState({ text })}
 						value={this.state.text}
 						placeholder="Stock Price in ₹"
 					/>
+					<Button onPress={this.deletePrice}>Delete</Button>
 					<Button onPress={this.updatePrice}>Update</Button>
 				</View>
-				<Button onPress={this.deletePrice}>Delete</Button>
+
+				<Text style={styles.errorTextStyle}>{this.state.error}</Text>
 			</View>
 		);
 	}
@@ -118,9 +126,34 @@ class AddStockScreen extends Component {
 	}
 
 	render() {
-		return <View style={{ flex: 1, alignItems: 'center', width: SCREEN_WIDTH }}>{this.renderMainContainer()}</View>;
+		return <View style={styles.container}>{this.renderMainContainer()}</View>;
 	}
 }
+
+const styles = {
+	container: {
+		flex: 1,
+		alignItems: 'center',
+		width: SCREEN_WIDTH
+	},
+	headerTextStyle: {
+		fontSize: 25,
+		fontFamily: 'Roboto',
+		fontWeight: '500',
+		color: Colors.black
+	},
+	cardStyle: {
+		flexDirection: 'row',
+		width: '100%',
+		marginTop: 10,
+		justifyContent: 'space-between'
+	},
+	errorTextStyle: {
+		color: Colors.red,
+		alignSelf: 'flex-start',
+		marginTop: 5
+	}
+};
 
 function mapStateToProps(state) {
 	return {
