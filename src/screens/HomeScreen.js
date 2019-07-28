@@ -1,14 +1,34 @@
 import React, { Component } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import { connect } from 'react-redux';
+import { LineChart } from 'react-native-chart-kit';
 import { Colors } from '../res';
 
 class HomeScreen extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			data: this.props.stock.data
+			data: this.props.stock.data,
+			xAxis: ['0'],
+			yAxis: [1]
 		};
+	}
+
+	componentDidMount() {
+		const xAxis = this.props.stock.data.map(item => {
+			if (item.days % 3 === 0) {
+				return item.days;
+			}
+		});
+
+		const yAxis = this.props.stock.data.map(item => {
+			if (item.stock_price) {
+				return item.stock_price;
+			}
+			return '0';
+		});
+
+		this.setState({ xAxis, yAxis });
 	}
 
 	renderStockPrice(item) {
@@ -45,6 +65,33 @@ class HomeScreen extends Component {
 						numColumns={5}
 					/>
 				</View>
+				<LineChart
+					data={{
+						labels: this.state.xAxis,
+						datasets: [
+							{
+								data: this.state.yAxis
+							}
+						]
+					}}
+					width={Dimensions.get('window').width - 20}
+					height={250}
+					yAxisLabel={'$'}
+					chartConfig={{
+						backgroundColor: '#e26a00',
+						backgroundGradientFrom: '#fb8c00',
+						backgroundGradientTo: '#ffa726',
+						decimalPlaces: 2, // optional, defaults to 2dp
+						color: (opacity = 1) => `rgba(0,0,0, ${opacity})`,
+						style: {
+							borderRadius: 5
+						}
+					}}
+					style={{
+						marginVertical: 8,
+						borderRadius: 5
+					}}
+				/>
 			</View>
 		);
 	}
@@ -70,7 +117,7 @@ const styles = {
 	},
 	calendarContainer: {
 		height: 405,
-		borderRadius: 4,
+		borderRadius: 5,
 		borderWidth: 1
 	},
 	calendarheaderStyle: {

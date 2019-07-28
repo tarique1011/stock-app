@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, Dimensions, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import Modal from 'react-native-modal';
@@ -37,6 +37,11 @@ class AddStockScreen extends Component {
 		this.setState({ error: '' });
 		const regex = /^\d+(\.\d{1,2})?$/;
 
+		if (this.state.text === this.props.navigation.state.params.stock_price) {
+			this.setState({ error: 'Please enter a price' });
+			return;
+		}
+
 		if (regex.test(this.state.text)) {
 			axios
 				.patch(`https://api.airtable.com/v0/appVgOprBCsLoWLmk/Table%201/${this.props.navigation.state.params.id}`, {
@@ -57,7 +62,7 @@ class AddStockScreen extends Component {
 					this.setState({ modalVisible: true });
 				});
 		} else {
-			this.setState({ error: 'Please input a valid price' });
+			this.setState({ error: 'Please enter a valid input' });
 		}
 	};
 
@@ -88,7 +93,6 @@ class AddStockScreen extends Component {
 				<Text style={styles.headerTextStyle}>Enter the Stock Price</Text>
 				<View style={styles.cardStyle}>
 					<Input
-						style={{ width: '50%' }}
 						onChangeText={text => this.setState({ text })}
 						placeholder="Stock Price in ₹"
 						value={this.state.text}
@@ -105,13 +109,16 @@ class AddStockScreen extends Component {
 			<View style={{ margin: 10, padding: 10, width: '90%' }}>
 				<Text style={styles.headerTextStyle}>Edit the Stock Price</Text>
 				<View style={styles.cardStyle}>
-					<Input
-						style={{ width: '50%' }}
-						onChangeText={text => this.setState({ text })}
-						value={this.state.text}
-						placeholder="Stock Price in ₹"
-					/>
-					<Button onPress={this.deletePrice}>Delete</Button>
+					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+						<Input
+							onChangeText={text => this.setState({ text })}
+							value={this.state.text}
+							placeholder="Stock Price in ₹"
+						/>
+						<TouchableOpacity onPress={this.deletePrice}>
+							<Image source={Images.delete} style={styles.deleteImage} />
+						</TouchableOpacity>
+					</View>
 					<Button onPress={this.updatePrice}>Update</Button>
 				</View>
 
@@ -172,10 +179,11 @@ const styles = {
 		flexDirection: 'row',
 		width: '100%',
 		marginTop: 10,
-		justifyContent: 'space-between'
+		justifyContent: 'space-between',
+		alignItems: 'center'
 	},
 	errorTextStyle: {
-		color: Colors.red,
+		color: Colors.brickRed,
 		alignSelf: 'flex-start',
 		marginTop: 5
 	},
@@ -200,6 +208,11 @@ const styles = {
 		marginTop: 10,
 		height: 70,
 		width: 70
+	},
+	deleteImage: {
+		height: 25,
+		width: 15,
+		margin: 5
 	}
 };
 

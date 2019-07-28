@@ -17,7 +17,7 @@ class Input extends Component {
 const styles = {
 	inputStyle: {
 		height: 40,
-		width: 100,
+		width: 150,
 		borderWidth: 1,
 		borderRadius: 5,
 		fontSize: 16
