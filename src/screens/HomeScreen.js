@@ -1,34 +1,44 @@
 import React, { Component } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Dimensions } from 'react-native';
+import { ScrollView, View, Text, FlatList, TouchableOpacity, Dimensions, DeviceEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { LineChart } from 'react-native-chart-kit';
 import { Colors } from '../res';
 
 class HomeScreen extends Component {
+	static navigationOptions = {
+		header: null
+	};
+
 	constructor(props) {
 		super(props);
 		this.state = {
 			data: this.props.stock.data,
-			xAxis: ['0'],
-			yAxis: [1]
+			days: [],
+			stock_price: [],
+			isLoading: true
 		};
 	}
 
 	componentDidMount() {
-		const xAxis = this.props.stock.data.map(item => {
+		DeviceEventEmitter.addListener('updateChartView', this.updateChartView.bind(this));
+		this.updateChartView();
+	}
+
+	updateChartView() {
+		const days = this.props.stock.data.map(item => {
 			if (item.days % 3 === 0) {
 				return item.days;
 			}
 		});
 
-		const yAxis = this.props.stock.data.map(item => {
+		const stock_price = this.props.stock.data.map(item => {
 			if (item.stock_price) {
 				return item.stock_price;
 			}
 			return '0';
 		});
 
-		this.setState({ xAxis, yAxis });
+		this.setState({ days, stock_price, isLoading: false });
 	}
 
 	renderStockPrice(item) {
@@ -50,27 +60,42 @@ class HomeScreen extends Component {
 		);
 	};
 
-	render() {
+	renderWelcomeMessage() {
 		return (
-			<View style={{ flex: 1, alignItems: 'center', marginTop: 10 }}>
-				<View style={styles.calendarContainer}>
-					<View style={styles.calendarheaderStyle}>
-						<Text style={styles.calendarheaderTextStyle}>June, 2019</Text>
-					</View>
-					<FlatList
-						contentContainerStyle={{ flexGrow: 1 }}
-						data={this.state.data}
-						renderItem={this.renderItem}
-						keyExtractor={item => item.id}
-						numColumns={5}
-					/>
+			<View style={{ justifyContent: 'center', alignItems: 'center', padding: 50 }}>
+				<Text style={styles.welcomeTextStyle}>Welcome to Stock.in</Text>
+				<Text style={styles.welcomeSubTextStyle}>Buy and Sell Stocks in a click</Text>
+			</View>
+		);
+	}
+
+	renderCalendar() {
+		return (
+			<View style={styles.calendarContainer}>
+				<View style={styles.calendarheaderStyle}>
+					<Text style={styles.calendarheaderTextStyle}>June, 2019</Text>
 				</View>
+				<FlatList
+					contentContainerStyle={{ flexGrow: 1 }}
+					data={this.state.data}
+					renderItem={this.renderItem}
+					keyExtractor={item => item.id}
+					numColumns={5}
+				/>
+			</View>
+		);
+	}
+
+	renderGraph() {
+		return (
+			<View style={{ alignItems: 'center', marginTop: 20 }}>
+				<Text style={styles.graphHeaderStyle}>STOCK PRICES BY DAY</Text>
 				<LineChart
 					data={{
-						labels: this.state.xAxis,
+						labels: this.state.days,
 						datasets: [
 							{
-								data: this.state.yAxis
+								data: this.state.stock_price
 							}
 						]
 					}}
@@ -94,6 +119,31 @@ class HomeScreen extends Component {
 				/>
 			</View>
 		);
+	}
+
+	renderMainContainer() {
+		return (
+			<ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
+				{this.renderWelcomeMessage()}
+				{this.renderCalendar()}
+				{this.renderGraph()}
+			</ScrollView>
+		);
+	}
+
+	renderSpinner() {
+		return (
+			<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+				<Text>Main Loading</Text>
+			</View>
+		);
+	}
+
+	render() {
+		if (this.state.isLoading) {
+			return this.renderSpinner();
+		}
+		return this.renderMainContainer();
 	}
 }
 
@@ -131,6 +181,26 @@ const styles = {
 		fontWeight: '400',
 		fontFamily: 'Roboto',
 		color: Colors.white
+	},
+	graphHeaderStyle: {
+		fontSize: 22,
+		fontFamily: 'Roboto',
+		fontWeight: '500',
+		color: Colors.blue
+	},
+	welcomeTextStyle: {
+		textAlign: 'center',
+		fontSize: 30,
+		fontWeight: '500',
+		color: Colors.blue,
+		fontFamily: 'Roboto'
+	},
+	welcomeSubTextStyle: {
+		textAlign: 'center',
+		fontSize: 16,
+		fontWeight: '500',
+		color: Colors.lightBlue,
+		fontFamily: 'Roboto'
 	}
 };
 

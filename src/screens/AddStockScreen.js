@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, Image, DeviceEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import Modal from 'react-native-modal';
@@ -60,6 +60,7 @@ class AddStockScreen extends Component {
 
 					this.props.updateData(data);
 					this.setState({ modalVisible: true });
+					DeviceEventEmitter.emit('updateChartView');
 				});
 		} else {
 			this.setState({ error: 'Please enter a valid input' });
@@ -84,6 +85,7 @@ class AddStockScreen extends Component {
 
 				this.setState({ text: '' });
 				this.props.updateData(data);
+				DeviceEventEmitter.emit('updateChartView');
 			});
 	};
 
