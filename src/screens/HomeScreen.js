@@ -107,7 +107,7 @@ class HomeScreen extends Component {
 	renderGraph() {
 		return (
 			<View style={{ alignItems: 'center', marginTop: 40 }}>
-				<Text style={styles.graphHeaderStyle}>Sock Prices By Day</Text>
+				<Text style={styles.graphHeaderStyle}>Stock Prices By Day</Text>
 				<LineChart
 					data={{
 						labels: this.state.xAxis,
@@ -308,21 +308,21 @@ const styles = {
 		color: Colors.white
 	},
 	graphHeaderStyle: {
-		fontSize: 22,
+		fontSize: 30,
 		fontFamily: 'Roboto',
 		fontWeight: '500',
 		color: Colors.blue
 	},
 	welcomeTextStyle: {
 		textAlign: 'center',
-		fontSize: 30,
+		fontSize: 35,
 		fontWeight: '500',
 		color: Colors.blue,
 		fontFamily: 'Roboto'
 	},
 	welcomeSubTextStyle: {
 		textAlign: 'center',
-		fontSize: 16,
+		fontSize: 15,
 		fontWeight: '500',
 		color: Colors.lightBlue,
 		fontFamily: 'Roboto'
