@@ -21,9 +21,10 @@ class HomeScreen extends Component {
 			isLoading: true,
 			stocksBought: false,
 			buyDate: null,
+			sellDate: null,
 			error: '',
 			units: '-',
-			worth: '-',
+			selldate: '-',
 			buydate: '-',
 			profit: '-'
 		};
@@ -138,28 +139,55 @@ class HomeScreen extends Component {
 
 	buyStock = () => {
 		const buyDate = this.state.buyDate;
+		this.setState({ error: '' });
 
 		if (this.state.days.includes(buyDate)) {
-			this.setState({ stocksBought: true });
+			this.setState({
+				stocksBought: true,
+				buydate: `${buyDate} June 2019`,
+				units: '10',
+				selldate: '-',
+				profit: '-',
+				sellDate: null
+			});
+		} else {
+			this.setState({ error: 'Please enter a valid date' });
+		}
+	};
+
+	sellStock = () => {
+		this.setState({ error: '' });
+		const { buyDate, sellDate, days, stock_price } = this.state;
+
+		if (days.includes(sellDate) && (parseInt(sellDate) >= parseInt(buyDate) && parseInt(sellDate) <= 30)) {
+			const profit = 10 * (stock_price[sellDate - 1] - stock_price[buyDate - 1]);
+			this.setState({
+				stocksBought: false,
+				selldate: `${sellDate} June 2019`,
+				units: '-',
+				buydate: '-',
+				profit,
+				buyDate: null
+			});
 		} else {
 			this.setState({ error: 'Please enter a valid date' });
 		}
 	};
 
 	renderTable() {
-		const { units, worth, buydate, profit } = this.state;
+		const { units, selldate, buydate, profit } = this.state;
 		return (
 			<View style={{ marginVertical: 10 }}>
 				<View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
 					<Text style={styles.tableHeaderStyle}>Stock Units</Text>
-					<Text style={styles.tableHeaderStyle}>Worth</Text>
 					<Text style={styles.tableHeaderStyle}>Buy Date</Text>
-					<Text style={styles.tableHeaderStyle}>Profit</Text>
+					<Text style={styles.tableHeaderStyle}>Sell Date</Text>
+					<Text style={styles.tableHeaderStyle}>Profit(₹)</Text>
 				</View>
 				<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 					<Text style={styles.tableContentStyle}>{units}</Text>
-					<Text style={styles.tableContentStyle}>{worth}</Text>
 					<Text style={styles.tableContentStyle}>{buydate}</Text>
+					<Text style={styles.tableContentStyle}>{selldate}</Text>
 					<Text style={styles.tableContentStyle}>{profit}</Text>
 				</View>
 			</View>
@@ -171,7 +199,7 @@ class HomeScreen extends Component {
 			return (
 				<View>
 					{this.renderTable()}
-					<Text style={{ fontSize: 16, color: Colors.black, marginTop: 10 }}>Select Buy Date:</Text>
+					<Text style={{ fontSize: 16, color: Colors.black, marginTop: 10, marginBottom: 5 }}>Select Buy Date:</Text>
 					<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 						<Input
 							onChangeText={buyDate => this.setState({ buyDate })}
@@ -187,13 +215,15 @@ class HomeScreen extends Component {
 		return (
 			<View>
 				{this.renderTable()}
-				<Text style={{ fontSize: 1, color: Colors.black }}>Select Sell Date:</Text>
-				<Input
-					onChangeText={buyDate => this.setState({ buyDate })}
-					value={this.state.buyDate}
-					placeholder="Enter 1-30"
-				/>
-				<Button onPress={this.sellStock}>Sell</Button>
+				<Text style={{ fontSize: 16, color: Colors.black, marginTop: 10, marginBottom: 5 }}>Select Sell Date:</Text>
+				<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+					<Input
+						onChangeText={sellDate => this.setState({ sellDate })}
+						value={this.state.sellDate}
+						placeholder="Enter 1-30"
+					/>
+					<Button onPress={this.sellStock}>Sell</Button>
+				</View>
 			</View>
 		);
 	}
@@ -203,6 +233,7 @@ class HomeScreen extends Component {
 			<View style={{ flex: 1, marginTop: 20, marginBottom: 50, width: '90%' }}>
 				<Text style={styles.dashboardHeaderStyle}>Your Dashboard</Text>
 				{this.renderLowerDashboard()}
+				<Text style={styles.errorTextStyle}>{this.state.error}</Text>
 			</View>
 		);
 	}
@@ -248,7 +279,7 @@ const styles = {
 	},
 	stockTextStyle: {
 		fontSize: 11,
-		color: 'green',
+		color: Colors.green,
 		position: 'absolute',
 		bottom: 2
 	},
@@ -307,6 +338,11 @@ const styles = {
 		fontSize: 14,
 		textAlign: 'center',
 		flex: 1
+	},
+	errorTextStyle: {
+		color: Colors.brickRed,
+		alignSelf: 'flex-start',
+		marginTop: 5
 	}
 };
 
