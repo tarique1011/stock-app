@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { ScrollView, View, Text, FlatList, TouchableOpacity, Dimensions, DeviceEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { LineChart } from 'react-native-chart-kit';
+import { Button, Input } from '../components';
 import { Colors } from '../res';
 
 class HomeScreen extends Component {
@@ -15,7 +16,16 @@ class HomeScreen extends Component {
 			data: this.props.stock.data,
 			days: [],
 			stock_price: [],
-			isLoading: true
+			xAxis: [],
+			yAxis: [],
+			isLoading: true,
+			stocksBought: false,
+			buyDate: null,
+			error: '',
+			units: '-',
+			worth: '-',
+			buydate: '-',
+			profit: '-'
 		};
 	}
 
@@ -26,6 +36,10 @@ class HomeScreen extends Component {
 
 	updateChartView() {
 		const days = this.props.stock.data.map(item => {
+			return item.days;
+		});
+
+		const xAxis = this.props.stock.data.map(item => {
 			if (item.days % 3 === 0) {
 				return item.days;
 			}
@@ -35,10 +49,12 @@ class HomeScreen extends Component {
 			if (item.stock_price) {
 				return item.stock_price;
 			}
-			return '0';
+			return null;
 		});
 
-		this.setState({ days, stock_price, isLoading: false });
+		const yAxis = [...stock_price];
+
+		this.setState({ days, stock_price, xAxis, yAxis, isLoading: false });
 	}
 
 	renderStockPrice(item) {
@@ -88,35 +104,105 @@ class HomeScreen extends Component {
 
 	renderGraph() {
 		return (
-			<View style={{ alignItems: 'center', marginTop: 20 }}>
-				<Text style={styles.graphHeaderStyle}>STOCK PRICES BY DAY</Text>
+			<View style={{ alignItems: 'center', marginTop: 40 }}>
+				<Text style={styles.graphHeaderStyle}>Sock Prices By Day</Text>
 				<LineChart
 					data={{
-						labels: this.state.days,
+						labels: this.state.xAxis,
 						datasets: [
 							{
-								data: this.state.stock_price
+								data: this.state.yAxis
 							}
 						]
 					}}
 					width={Dimensions.get('window').width - 20}
 					height={250}
-					yAxisLabel={'$'}
+					yAxisLabel={'₹'}
 					chartConfig={{
 						backgroundColor: '#e26a00',
 						backgroundGradientFrom: '#fb8c00',
 						backgroundGradientTo: '#ffa726',
-						decimalPlaces: 2, // optional, defaults to 2dp
 						color: (opacity = 1) => `rgba(0,0,0, ${opacity})`,
 						style: {
 							borderRadius: 5
 						}
 					}}
 					style={{
-						marginVertical: 8,
-						borderRadius: 5
+						margin: 20,
+						borderRadius: 2
 					}}
 				/>
+			</View>
+		);
+	}
+
+	buyStock = () => {
+		const buyDate = this.state.buyDate;
+
+		if (this.state.days.includes(buyDate)) {
+			this.setState({ stocksBought: true });
+		} else {
+			this.setState({ error: 'Please enter a valid date' });
+		}
+	};
+
+	renderTable() {
+		const { units, worth, buydate, profit } = this.state;
+		return (
+			<View style={{ marginVertical: 10 }}>
+				<View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
+					<Text style={styles.tableHeaderStyle}>Stock Units</Text>
+					<Text style={styles.tableHeaderStyle}>Worth</Text>
+					<Text style={styles.tableHeaderStyle}>Buy Date</Text>
+					<Text style={styles.tableHeaderStyle}>Profit</Text>
+				</View>
+				<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+					<Text style={styles.tableContentStyle}>{units}</Text>
+					<Text style={styles.tableContentStyle}>{worth}</Text>
+					<Text style={styles.tableContentStyle}>{buydate}</Text>
+					<Text style={styles.tableContentStyle}>{profit}</Text>
+				</View>
+			</View>
+		);
+	}
+
+	renderLowerDashboard() {
+		if (!this.state.stocksBought) {
+			return (
+				<View>
+					{this.renderTable()}
+					<Text style={{ fontSize: 16, color: Colors.black, marginTop: 10 }}>Select Buy Date:</Text>
+					<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+						<Input
+							onChangeText={buyDate => this.setState({ buyDate })}
+							value={this.state.buyDate}
+							placeholder="Enter 1-30"
+						/>
+						<Button onPress={this.buyStock}>Buy</Button>
+					</View>
+				</View>
+			);
+		}
+
+		return (
+			<View>
+				{this.renderTable()}
+				<Text style={{ fontSize: 1, color: Colors.black }}>Select Sell Date:</Text>
+				<Input
+					onChangeText={buyDate => this.setState({ buyDate })}
+					value={this.state.buyDate}
+					placeholder="Enter 1-30"
+				/>
+				<Button onPress={this.sellStock}>Sell</Button>
+			</View>
+		);
+	}
+
+	renderDashboard() {
+		return (
+			<View style={{ flex: 1, marginTop: 20, marginBottom: 50, width: '90%' }}>
+				<Text style={styles.dashboardHeaderStyle}>Your Dashboard</Text>
+				{this.renderLowerDashboard()}
 			</View>
 		);
 	}
@@ -127,6 +213,7 @@ class HomeScreen extends Component {
 				{this.renderWelcomeMessage()}
 				{this.renderCalendar()}
 				{this.renderGraph()}
+				{this.renderDashboard()}
 			</ScrollView>
 		);
 	}
@@ -201,6 +288,25 @@ const styles = {
 		fontWeight: '500',
 		color: Colors.lightBlue,
 		fontFamily: 'Roboto'
+	},
+	dashboardHeaderStyle: {
+		textAlign: 'center',
+		fontSize: 30,
+		fontWeight: '500',
+		color: Colors.blue,
+		fontFamily: 'Roboto'
+	},
+	tableHeaderStyle: {
+		fontSize: 16,
+		fontFamily: 'Roboto',
+		fontWeight: '500',
+		textAlign: 'center',
+		flex: 1
+	},
+	tableContentStyle: {
+		fontSize: 14,
+		textAlign: 'center',
+		flex: 1
 	}
 };
 
