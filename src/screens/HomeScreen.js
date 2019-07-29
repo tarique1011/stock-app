@@ -26,7 +26,8 @@ class HomeScreen extends Component {
 			units: '-',
 			selldate: '-',
 			buydate: '-',
-			profit: '-'
+			profit: '-',
+			profitColor: Colors.black
 		};
 	}
 
@@ -148,7 +149,8 @@ class HomeScreen extends Component {
 				units: '10',
 				selldate: '-',
 				profit: '-',
-				sellDate: null
+				sellDate: null,
+				profitColor: Colors.black
 			});
 		} else {
 			this.setState({ error: 'Please enter a valid date' });
@@ -161,12 +163,17 @@ class HomeScreen extends Component {
 
 		if (days.includes(sellDate) && (parseInt(sellDate) >= parseInt(buyDate) && parseInt(sellDate) <= 30)) {
 			const profit = 10 * (stock_price[sellDate - 1] - stock_price[buyDate - 1]);
+			if (parseInt(profit) > 0) {
+				this.setState({ profitColor: Colors.green, profit: `+${profit}` });
+			} else if (parseInt(profit) < 0) {
+				this.setState({ profitColor: Colors.brickRed, profit });
+			}
+
 			this.setState({
 				stocksBought: false,
 				selldate: `${sellDate} June 2019`,
 				units: '-',
 				buydate: '-',
-				profit,
 				buyDate: null
 			});
 		} else {
@@ -188,7 +195,7 @@ class HomeScreen extends Component {
 					<Text style={styles.tableContentStyle}>{units}</Text>
 					<Text style={styles.tableContentStyle}>{buydate}</Text>
 					<Text style={styles.tableContentStyle}>{selldate}</Text>
-					<Text style={styles.tableContentStyle}>{profit}</Text>
+					<Text style={[styles.tableContentStyle, { color: this.state.profitColor }]}>{profit}</Text>
 				</View>
 			</View>
 		);
