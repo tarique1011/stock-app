@@ -32,6 +32,8 @@ class LoadingScreen extends Component {
 					}
 				}
 			);
+
+		console.disableYellowBox = true;
 	}
 
 	render() {
