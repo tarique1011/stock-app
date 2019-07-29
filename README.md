@@ -4,7 +4,7 @@
 
 ```
 git clone git@github.com:tarique1011/stock-app.git
-cd pizza-delivery-app
+cd stock-app
 npm install
 npm start
 ```
